@@ -19,6 +19,23 @@ services:
     container_name: postgres_bootcamp
     networks:
       - backend
+  bootcamp-user-api:
+    build:
+      context: ../allan-franco-backend/app-user-api
+      dockerfile: ../app-user-api/Dockerfile
+    image: dvlln/bootcamp-user-api:latest
+    ports:
+      - 8081:8081
+    container_name: app-user-api
+    environment:
+      - POSTGRES_URL=postgres_bootcamp
+      - POSTGRES_USER=bootcamp
+      - POSTGRES_PASSWORD=botcamppass
+      - POSTGRES_DATABASE=bootcamp
+    depends_on:
+      - postgres_bootcamp
+    networks:
+      - backend
 networks:
   backend:
     driver: "bridge"

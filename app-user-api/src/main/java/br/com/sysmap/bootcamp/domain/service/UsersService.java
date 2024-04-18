@@ -5,9 +5,10 @@ import br.com.sysmap.bootcamp.domain.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -17,6 +18,7 @@ public class UsersService {
     private final UsersRepository usersRepository;
 
     //POST
+    @Transactional(propagation = Propagation.REQUIRED)
     public Users save(Users user){
         log.info("Saving user: {}", user);
         return this.usersRepository.save(user);
