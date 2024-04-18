@@ -7,5 +7,5 @@ spring:
     defer-datasource-initialization: true
   datasource:
     url: jdbc:postgresql://localhost:5432/bootcamp
-    username: postgres
-    password: postgres
+    username: bootcamp
+    password: bootcamppass
