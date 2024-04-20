@@ -11,7 +11,7 @@
 	<groupId>br.com.sysmap.bootcamp</groupId>
 	<artifactId>app-integration-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Bootcamp Sysmap 2024 API - Allan Franco</name>
+	<name>Bootcamp Sysmap 2024 Integration - Allan Franco</name>
 	<description>Integration Project</description>
 	<properties>
 		<java.version>17</java.version>

@@ -9,7 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="app-user-api" />
       </profile>
-      <profile name="Annotation profile for Bootcamp Sysmap 2024 API - Allan Franco" enabled="true">
+      <profile name="Annotation profile for Bootcamp Sysmap 2024 Integration - Allan Franco" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />

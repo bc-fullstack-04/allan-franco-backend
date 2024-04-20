@@ -11,7 +11,7 @@
 	<groupId>br.com.sysmap.bootcamp</groupId>
 	<artifactId>app-user-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>Bootcamp Sysmap 2024 - Allan Franco</name>
+	<name>Bootcamp Sysmap 2024 Application - Allan Franco</name>
 	<description>API Responsable for Users</description>
 	<properties>
 		<java.version>17</java.version>
