@@ -1,7 +1,10 @@
 package br.com.sysmap.bootcamp.domain.service;
 
 import br.com.sysmap.bootcamp.domain.entities.Users;
+import br.com.sysmap.bootcamp.domain.entities.Wallet;
 import br.com.sysmap.bootcamp.domain.repository.UsersRepository;
+import br.com.sysmap.bootcamp.domain.repository.WalletRepository;
+import br.com.sysmap.bootcamp.domain.validation.UsersValidation;
 import br.com.sysmap.bootcamp.dto.AuthDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +17,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ReflectionUtils;
 
-import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -25,46 +28,62 @@ import java.util.*;
 public class UsersService implements UserDetailsService {
 
     private final UsersRepository usersRepository;
+    private final WalletRepository walletRepository;
+
+    private final UsersValidation usersValidation;
+
     private final PasswordEncoder passwordEncoder;
 
     //POST
     @Transactional(propagation = Propagation.REQUIRED)
-    public Users save(Users user) {
+    public Users createUser(Users user) {
 
-        Optional<Users> usersOptional = this.usersRepository.findByEmail(user.getEmail());
-        if (usersOptional.isPresent()) {
-            throw new RuntimeException("User already exists");
-        }
+        // ↓ Did this for better user return exception (@Column(nullable=false) isn't good)
+        // Validates that all fields are set
+        usersValidation.userFieldsAreSet(user);
+
+        // Validates that e-mail exists
+        usersValidation.emailAlreadyExists(user.getEmail());
 
         user = user.toBuilder().password(this.passwordEncoder.encode(user.getPassword())).build();
 
+        // Set Wallet
+        Wallet walletUser = new Wallet();
+        walletUser.setBalance(BigDecimal.valueOf(1000.00));
+        walletUser.setLastUpdate(LocalDateTime.now());
+        walletUser.setPoints(0L);
+        walletUser.setUsers(user);
 
-        // Aqui deve se criar uma wallet para o user
+        this.walletRepository.save(walletUser);
 
         log.info("Saving user: {}", user);
         return this.usersRepository.save(user);
     }
 
     //PUT
-    public Users updateByFields(long id, Map<String, Object> fields) {
-        Optional<Users> findedUser = usersRepository.findById(id);
+    public Users updateUser(Users user) {
+        // Validates that the ID was provided
+        Users existingUser = this.usersRepository.findById(user.getId()).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (findedUser.isPresent()) {
-            fields.forEach((key, value) -> {
-                Field field = ReflectionUtils.findField(Users.class, key);
-                field.setAccessible(true);
-                ReflectionUtils.setField(field, findedUser.get(), value);
-            });
-            log.info("Updating user...");
-            return usersRepository.save(findedUser.get());
-        }
-        return null;
+        // Validates that e-mail exists
+        usersValidation.emailAlreadyExists(user.getEmail());
+
+        //Update user by fields
+        Users updatedUser = existingUser.toBuilder()
+                .name(user.getName() != null ? user.getName() : existingUser.getName())
+                .email(user.getEmail() != null ? user.getEmail() : existingUser.getEmail())
+                .password(user.getPassword() != null ? this.passwordEncoder.encode(user.getPassword()) : existingUser.getPassword())
+                .build();
+
+        log.info("Updating user: {}", user.getId());
+        return usersRepository.save(updatedUser);
     }
 
     //GET
-    public Users getOneUser(long id){
-        log.info("Showing one user: {}", id);
-        return this.usersRepository.findById(id).orElse(null);
+    public Users getUserById(long id){
+        Users existingUser = this.usersRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        log.info("Showing user: {}", id);
+        return existingUser;
     }
 
     //GET ALL
@@ -78,15 +97,11 @@ public class UsersService implements UserDetailsService {
         Optional<Users> usersOptional = this.usersRepository.findByEmail(username);
 
         return usersOptional.map(users -> new User(users.getEmail(), users.getPassword(), new ArrayList<GrantedAuthority>()))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found" + username));
-    }
-
-    public Users findByEmail(String email) {
-        return this.usersRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
     public AuthDto auth(AuthDto authDto) {
-        Users users = this.findByEmail(authDto.getEmail());
+        Users users = usersValidation.findByEmail(authDto.getEmail());
 
         if (!this.passwordEncoder.matches(authDto.getPassword(), users.getPassword())) {
             throw new RuntimeException("Invalid password");
