@@ -46,72 +46,79 @@ public class UsersControllerTest {
     @MockBean
     private UsersService usersService;
 
-    private ObjectMapper objectMapper;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    private ObjectMapper objectMapper;
+    private Users user = Users.builder().build();
+    private AuthDto authDto = new AuthDto();
+    private Wallet wallet = Wallet.builder().build();
 
     @BeforeEach
     public void setup() {
         objectMapper = new ObjectMapper();
+
+        user.toBuilder()
+                .id(1L)
+                .name("teste")
+                .email("teste")
+                .password("123")
+                .build();
+
+        authDto.setEmail("teste");
+        authDto.setPassword("123");
+        authDto.setId(1L);
+        authDto.setToken("testToken");
     }
 
     @Test
     @DisplayName("Test Creating User")
     public void testCreatingUser() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("test").password(passwordEncoder.encode("teste")).build();
-
-        when(usersService.createUser(users)).thenReturn(users);
+        when(usersService.createUser(user)).thenReturn(user);
 
         mockMvc.perform(post("/users/create")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(users)))
+            .content(objectMapper.writeValueAsString(user)))
             .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Test Updating User")
     public void testUpdatingUser() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("test").password("teste").build();
-
-        when(usersService.updateUser(users)).thenReturn(users);
+        when(usersService.updateUser(user)).thenReturn(user);
 
         mockMvc.perform(put("/users/update")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(users)))
+                        .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("Test Getting Users By Id")
     public void testGettingUsersById() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("teste").password("123").build();
-
-        when(usersService.getUserById(1L)).thenReturn(users);
+        when(usersService.getUserById(1L)).thenReturn(user);
 
         mockMvc.perform(get("/users/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(users)));
+                .andExpect(content().json(objectMapper.writeValueAsString(user)));
     }
 
     @Test
     @DisplayName("Test Getting All Users")
     public  void testGettingAllUsers() throws Exception {
-        List<Users> usersList = Arrays.asList(Users.builder().id(1L).name("teste").email("teste").password("123").build());
+        List<Users> users = Arrays.asList(user);
 
-        when(usersService.getAllUser()).thenReturn(usersList);
+        when(usersService.getAllUser()).thenReturn(users);
         mockMvc.perform(get("/users")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(usersList)));
+                .andExpect(content().json(objectMapper.writeValueAsString(users)));
     }
 
     @Test
     @DisplayName("Authentication User")
     public  void testeAuth() throws Exception {
-        AuthDto authDto = AuthDto.builder().email("teste").password("123").id(1L).token("teste").build();
-
         when(usersService.auth(authDto)).thenReturn(authDto);
 
         mockMvc.perform(post("/users/auth")

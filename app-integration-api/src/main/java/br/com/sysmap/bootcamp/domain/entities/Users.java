@@ -1,7 +1,11 @@
 package br.com.sysmap.bootcamp.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
 
 @Data
 @Builder(toBuilder = true)

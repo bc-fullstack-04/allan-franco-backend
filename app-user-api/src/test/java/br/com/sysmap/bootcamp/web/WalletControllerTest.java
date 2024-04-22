@@ -32,22 +32,31 @@ public class WalletControllerTest {
     private WalletService walletService;
 
     private ObjectMapper objectMapper;
+    private Users user = Users.builder().build();
+    private Wallet wallet = Wallet.builder().build();
 
     @BeforeEach
     public void setup() {
         objectMapper = new ObjectMapper();
+
+        user.toBuilder()
+                .id(1L)
+                .name("teste")
+                .email("teste")
+                .password("123")
+                .build();
+
+        wallet.toBuilder()
+                .id(1L)
+                .balance(BigDecimal.valueOf(1000))
+                .points(15L)
+                .users(user)
+                .build();
     }
 
     @Test
     @DisplayName("Test Adding To Wallet By User")
     public void testAddingToWalletByUser() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("teste").password("123").build();
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setBalance(BigDecimal.valueOf(1000));
-        wallet.setPoints(15L);
-        wallet.setUsers(users);
-
         when(walletService.addCreditToWalletByUser(BigDecimal.valueOf(10))).thenReturn(wallet);
 
         mockMvc.perform(post("/wallet/credit/{value}", 10)
@@ -59,13 +68,6 @@ public class WalletControllerTest {
     @Test
     @DisplayName("Test Getting Wallet by User")
     public void testGettingWalletByUser() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("teste").password("123").build();
-        Wallet wallet = new Wallet();
-        wallet.setId(1L);
-        wallet.setBalance(BigDecimal.valueOf(1000));
-        wallet.setPoints(15L);
-        wallet.setUsers(users);
-
         when(walletService.getWalletByUser()).thenReturn(wallet);
 
         mockMvc.perform(get("/wallet", 1L)

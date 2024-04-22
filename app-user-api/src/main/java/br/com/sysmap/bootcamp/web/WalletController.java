@@ -1,9 +1,7 @@
 package br.com.sysmap.bootcamp.web;
 
-import br.com.sysmap.bootcamp.domain.entities.Users;
 import br.com.sysmap.bootcamp.domain.entities.Wallet;
 import br.com.sysmap.bootcamp.domain.service.WalletService;
-import br.com.sysmap.bootcamp.dto.WalletDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

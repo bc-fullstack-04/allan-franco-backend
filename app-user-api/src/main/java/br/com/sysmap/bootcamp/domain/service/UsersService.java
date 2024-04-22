@@ -8,6 +8,8 @@ import br.com.sysmap.bootcamp.domain.validation.UsersValidation;
 import br.com.sysmap.bootcamp.dto.AuthDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,44 +31,38 @@ public class UsersService implements UserDetailsService {
 
     private final UsersRepository usersRepository;
     private final WalletRepository walletRepository;
-
     private final UsersValidation usersValidation;
-
     private final PasswordEncoder passwordEncoder;
 
-    //POST
     @Transactional(propagation = Propagation.REQUIRED)
     public Users createUser(Users user) {
-
-        // ↓ Did this for better user return exception (@Column(nullable=false) isn't good)
-        // Validates that all fields are set
-        usersValidation.userFieldsAreSet(user);
-
         // Validates that e-mail exists
         usersValidation.emailAlreadyExists(user.getEmail());
 
-        user = user.toBuilder().password(this.passwordEncoder.encode(user.getPassword())).build();
-
         // Set Wallet
-        Wallet walletUser = new Wallet();
-        walletUser.setBalance(BigDecimal.valueOf(1000.00));
-        walletUser.setLastUpdate(LocalDateTime.now());
-        walletUser.setPoints(0L);
-        walletUser.setUsers(user);
+        user = user.toBuilder().password(this.passwordEncoder.encode(user.getPassword())).build();
+        Wallet wallet = Wallet.builder()
+                .balance(BigDecimal.valueOf(1000))
+                .lastUpdate(LocalDateTime.now())
+                .points(0L)
+                .users(user)
+                .build();
 
-        this.walletRepository.save(walletUser);
+        this.walletRepository.save(wallet);
 
         log.info("Saving user: {}", user);
         return this.usersRepository.save(user);
     }
 
-    //PUT
+    @Transactional(propagation = Propagation.REQUIRED)
     public Users updateUser(Users user) {
         // Validates that the ID was provided
         Users existingUser = this.usersRepository.findById(user.getId()).orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         // Validates that e-mail exists
-        usersValidation.emailAlreadyExists(user.getEmail());
+        if (!existingUser.getEmail().equals(user.getEmail())) {
+            usersValidation.emailAlreadyExists(user.getEmail());
+        }
 
         //Update user by fields
         Users updatedUser = existingUser.toBuilder()
@@ -79,14 +75,14 @@ public class UsersService implements UserDetailsService {
         return usersRepository.save(updatedUser);
     }
 
-    //GET
+    @Transactional(readOnly = true)
     public Users getUserById(long id){
         Users existingUser = this.usersRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
         log.info("Showing user: {}", id);
         return existingUser;
     }
 
-    //GET ALL
+    @Transactional(readOnly = true)
     public List<Users> getAllUser(){
         log.info("Showing all users");
         return this.usersRepository.findAll();
@@ -100,6 +96,7 @@ public class UsersService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public AuthDto auth(AuthDto authDto) {
         Users users = usersValidation.findByEmail(authDto.getEmail());
 

@@ -5,6 +5,7 @@ import br.com.sysmap.bootcamp.domain.entities.Wallet;
 import br.com.sysmap.bootcamp.domain.repository.UsersRepository;
 import br.com.sysmap.bootcamp.domain.repository.WalletRepository;
 import br.com.sysmap.bootcamp.dto.AuthDto;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,48 +36,64 @@ public class UsersServiceTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    private Users user = Users.builder().build();
+    private Wallet wallet = Wallet.builder().build();
+    private AuthDto authDto = new AuthDto();
+
+    @BeforeEach
+    public void setup() {
+        user.toBuilder()
+                .id(1L)
+                .name("teste")
+                .email("test")
+                .password("teste")
+                .build();
+
+        wallet.toBuilder()
+                .id(1L)
+                .balance(new BigDecimal("100"))
+                .lastUpdate(LocalDateTime.now())
+                .points(0L)
+                .users(user)
+                .build();
+
+        authDto.setEmail("teste");
+        authDto.setPassword("123");
+        authDto.setId(1L);
+        authDto.setToken("testToken");
+
+    }
+
     @Test
     @DisplayName("Test Creating User")
     public void testCreatingUser() {
-        Users users = Users.builder().id(1L).name("teste").email("test").password("teste").build();
+        when(usersRepository.save(any(Users.class))).thenReturn(user);
+        when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
 
-        Wallet walletUser = new Wallet();
-        walletUser.setBalance(BigDecimal.valueOf(1000.00));
-        walletUser.setLastUpdate(LocalDateTime.now());
-        walletUser.setPoints(0L);
-        walletUser.setUsers(users);
-
-        when(usersRepository.save(any(Users.class))).thenReturn(users);
-        when(walletRepository.save(any(Wallet.class))).thenReturn(walletUser);
-
-        assertEquals(users,usersService.createUser(users));
+        assertEquals(user,usersService.createUser(user));
     }
 
     @Test
     @DisplayName("Test Updating User")
     public void testUpdatingUser() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("test").password("teste").build();
+        when(usersRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
+        when(usersRepository.save(any(Users.class))).thenReturn(user);
 
-        when(usersRepository.findById(1L)).thenReturn(Optional.ofNullable(users));
-        when(usersRepository.save(any(Users.class))).thenReturn(users);
-
-        assertEquals(users, usersService.updateUser(users));
+        assertEquals(user, usersService.updateUser(user));
     }
 
     @Test
     @DisplayName("Test Getting Users By Id")
     public void testGettingUsersById() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("test").password("teste").build();
+        when(usersRepository.findById(1L)).thenReturn(Optional.ofNullable(user));
 
-        when(usersRepository.findById(1L)).thenReturn(Optional.ofNullable(users));
-
-        assertEquals(users, usersService.getUserById(1L));
+        assertEquals(user, usersService.getUserById(1L));
     }
 
     @Test
     @DisplayName("Test Getting All Users")
     public  void testGettingAllUsers() throws Exception {
-        List<Users> usersList = Arrays.asList(Users.builder().id(1L).name("teste").email("teste").password("123").build());
+        List<Users> usersList = Arrays.asList(user);
 
         when(usersRepository.findAll()).thenReturn((List<Users>) usersList);
 
@@ -86,32 +103,27 @@ public class UsersServiceTest {
     @Test
     @DisplayName("Test Load User By Username")
     public  void testLoadUserByUsername() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("test").password(passwordEncoder.encode("teste")).build();
-
-        when(usersRepository.findByEmail("test")).thenReturn(Optional.ofNullable(users));
+        when(usersRepository.findByEmail("test")).thenReturn(Optional.ofNullable(user));
 
         UserDetails userDetails = usersService.loadUserByUsername("test");
 
-        assertEquals(users.getEmail(), userDetails.getUsername());
-        assertEquals(users.getPassword(), userDetails.getPassword());
+        assertEquals(user.getEmail(), userDetails.getUsername());
+        assertEquals(user.getPassword(), userDetails.getPassword());
     }
 
     @Test
     @DisplayName("Authenticating User")
     public  void testAuth() throws Exception {
-        Users users = Users.builder().id(1L).name("teste").email("teste").password(passwordEncoder.encode("test")).build();
-        AuthDto authDto = AuthDto.builder().email("teste").password("test").id(1L).build();
-
-        when(usersRepository.findByEmail("teste")).thenReturn(Optional.ofNullable(users));
+        when(usersRepository.findByEmail("teste")).thenReturn(Optional.ofNullable(user));
 
         AuthDto result = usersService.auth(authDto);
 
-        StringBuilder password = new StringBuilder().append(users.getEmail()).append(":").append(users.getPassword());
+        StringBuilder password = new StringBuilder().append(user.getEmail()).append(":").append(user.getPassword());
 
         String expectedToken = Base64.getEncoder().withoutPadding().encodeToString((password.toString()).getBytes());
         assertEquals(expectedToken, result.getToken());
 
-        assertEquals(users.getEmail(), result.getEmail());
-        assertEquals(users.getId(), result.getId());
+        assertEquals(user.getEmail(), result.getEmail());
+        assertEquals(user.getId(), result.getId());
     }
 }

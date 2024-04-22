@@ -2,10 +2,8 @@ package br.com.sysmap.bootcamp.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
 @Builder
 @Getter
 @Setter
@@ -21,5 +19,8 @@ public class AuthDto {
         this.password = password;
         this.id = id;
         this.token = token;
+    }
+
+    public AuthDto() {
     }
 }
