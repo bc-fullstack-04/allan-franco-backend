@@ -1,4 +1,7 @@
 app-user-api/mvnw
 app-user-api/mvnw.cmd
 app-user-api/.mvn
+app-integration-api/mvnw
+app-integration-api/mvnw.cmd
+app-integration-api/.mvn
 .idea
