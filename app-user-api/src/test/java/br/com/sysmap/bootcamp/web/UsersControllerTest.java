@@ -50,21 +50,21 @@ public class UsersControllerTest {
     private PasswordEncoder passwordEncoder;
 
     private ObjectMapper objectMapper;
-    private Users user = Users.builder().build();
-    private AuthDto authDto = new AuthDto();
-    private Wallet wallet = Wallet.builder().build();
+    private Users user;
+    private AuthDto authDto;
 
     @BeforeEach
     public void setup() {
         objectMapper = new ObjectMapper();
 
-        user.toBuilder()
+        user = Users.builder()
                 .id(1L)
                 .name("teste")
                 .email("teste")
                 .password("123")
                 .build();
 
+        authDto = new AuthDto();
         authDto.setEmail("teste");
         authDto.setPassword("123");
         authDto.setId(1L);

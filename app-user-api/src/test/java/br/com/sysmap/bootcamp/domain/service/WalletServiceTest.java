@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,12 +19,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -38,40 +39,42 @@ public class WalletServiceTest {
     @MockBean
     private UsersValidation usersValidation;
 
-    private Users user = Users.builder().build();
-    private Wallet wallet = Wallet.builder().build();
-
+    private Users user;
+    private Wallet wallet;
+    private WalletDto walletDto;
 
     @BeforeEach
     public void setup() {
-        user.toBuilder()
+        user = Users.builder()
                 .id(1L)
                 .name("teste")
-                .email("test")
-                .password("teste")
+                .email("teste")
+                .password("123")
                 .build();
 
-        wallet.toBuilder()
+        wallet = Wallet.builder()
                 .id(1L)
-                .balance(BigDecimal.valueOf(100))
-                .lastUpdate(LocalDateTime.now())
-                .points(0L)
+                .balance(BigDecimal.valueOf(1000))
+                .points(15L)
                 .users(user)
                 .build();
+
+        walletDto = new WalletDto("test", BigDecimal.valueOf(100));
     }
 
     @Test
     @DisplayName("Test Debit")
     public void testDebit() throws Exception {
-        WalletDto walletDto = new WalletDto("test", BigDecimal.valueOf(100));
-        when(usersValidation.findByEmail("test")).thenReturn(user);
-        when(walletRepository.findByUsers(user)).thenReturn(Optional.of(wallet));
+        when(usersValidation.findByEmail(anyString())).thenReturn(user);
+        when(walletRepository.findByUsers(any(Users.class))).thenReturn(Optional.of(wallet));
 
         // Execute debit method
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
-        walletService.debit(walletDto);
 
-        //assertEquals(walletDto.getValue(), wallet.getBalance());
+        walletService.debit((walletDto));
+
+        ArgumentCaptor<Wallet> walletCaptor = ArgumentCaptor.forClass(Wallet.class);
+        verify(walletRepository).save(walletCaptor.capture());
     }
 
     @Test

@@ -2,11 +2,10 @@
 Projeto Backend - Allan Franco Mauricio
 
 ## How to run it()
-- Abra o terminal e verifique se está no diretorio allan-franco-backend
-- Execute o comando: mvn verify && mvn install
+- Abra o terminal e acesse o diretorio app-user-api
+- Execute o comando: mvn install
+- Acesse o diretorio app-integration-api e execute o comando novamente
 - Execute o comando: docker.compose -f docker.composer.yml build
 - Execute o comando: docker.compose -f docker.composer.yml up
 
-**OBSERVAÇÃO**: As portas do docker da Aplicação são 8081 e da Integração 8082
-
-Seja feliz brincando com os endpoints :)
+**OBSERVAÇÃO**: As portas do docker são: "Aplicação = 8081" e "Integração = 8082"

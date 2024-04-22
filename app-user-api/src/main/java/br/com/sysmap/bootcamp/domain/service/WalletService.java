@@ -36,7 +36,7 @@ public class WalletService{
                 .points(wallet.getPoints() + setPointPerDay())
                 .build();
 
-        walletRepository.save(updatedWalletValue);
+        this.walletRepository.save(updatedWalletValue);
     }
 
     @Transactional(propagation = Propagation.REQUIRED)

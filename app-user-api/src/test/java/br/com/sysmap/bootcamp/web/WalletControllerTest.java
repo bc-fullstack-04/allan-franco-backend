@@ -32,21 +32,21 @@ public class WalletControllerTest {
     private WalletService walletService;
 
     private ObjectMapper objectMapper;
-    private Users user = Users.builder().build();
-    private Wallet wallet = Wallet.builder().build();
+    private Users user;
+    private Wallet wallet;
 
     @BeforeEach
     public void setup() {
         objectMapper = new ObjectMapper();
 
-        user.toBuilder()
+        user = Users.builder()
                 .id(1L)
                 .name("teste")
                 .email("teste")
                 .password("123")
                 .build();
 
-        wallet.toBuilder()
+        wallet = Wallet.builder()
                 .id(1L)
                 .balance(BigDecimal.valueOf(1000))
                 .points(15L)

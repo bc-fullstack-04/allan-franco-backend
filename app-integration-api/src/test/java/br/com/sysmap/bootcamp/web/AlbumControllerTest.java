@@ -35,20 +35,20 @@ public class AlbumControllerTest {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private Users user = Users.builder().build();
+    private Users user;
 
-    private Album album = Album.builder().build();
+    private Album album;
 
     @BeforeEach
     public void setup() {
         objectMapper = new ObjectMapper();
-        user.toBuilder()
+        user = Users.builder()
                 .id(1L)
                 .email("test")
                 .password("123")
                 .build();
 
-        album.toBuilder()
+        album = Album.builder()
                 .id(1L)
                 .name("Teste")
                 .idSpotify("test123")
