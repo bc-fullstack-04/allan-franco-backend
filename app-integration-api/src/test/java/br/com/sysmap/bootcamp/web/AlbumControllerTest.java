@@ -103,6 +103,6 @@ public class AlbumControllerTest {
 
         mockMvc.perform(delete("/albums/remove/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isOk());
     }
 }

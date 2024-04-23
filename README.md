@@ -2,10 +2,10 @@
 Projeto Backend - Allan Franco Mauricio
 
 ## How to run it()
-- Abra o terminal e acesse o diretorio app-user-api
-- Execute o comando: mvn install
-- Acesse o diretorio app-integration-api e execute o comando novamente
-- Volte ao diretorio raiz do projeto
+
+- Defina **app-integration-api** e **app-user-api** como um projeto maven 
+- Execute o comando **install** do maven nos dois projetos citados acima
+- Abra o terminal na raiz do projeto (Diretório: allan-franco-backend)
 - Execute o comando: docker-compose -f docker-compose.yml up --build
 
 **OBSERVAÇÃO**: As portas do docker são: "Aplicação = 8081" e "Integração = 8082"

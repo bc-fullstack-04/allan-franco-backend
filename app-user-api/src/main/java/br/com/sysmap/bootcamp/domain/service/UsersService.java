@@ -8,8 +8,6 @@ import br.com.sysmap.bootcamp.domain.validation.UsersValidation;
 import br.com.sysmap.bootcamp.dto.AuthDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -51,6 +49,7 @@ public class UsersService implements UserDetailsService {
         this.walletRepository.save(wallet);
 
         log.info("Saving user: {}", user);
+
         return this.usersRepository.save(user);
     }
 

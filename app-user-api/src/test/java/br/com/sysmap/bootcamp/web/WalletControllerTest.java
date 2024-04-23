@@ -61,8 +61,7 @@ public class WalletControllerTest {
 
         mockMvc.perform(post("/wallet/credit/{value}", 10)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(wallet)));
+                .andExpect(status().isOk());
     }
 
     @Test

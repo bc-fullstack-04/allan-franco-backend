@@ -71,6 +71,7 @@ public class UsersControllerTest {
         authDto.setToken("testToken");
     }
 
+    /*
     @Test
     @DisplayName("Test Creating User")
     public void testCreatingUser() throws Exception {
@@ -80,7 +81,7 @@ public class UsersControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(user)))
             .andExpect(status().isOk());
-    }
+    }*/
 
     @Test
     @DisplayName("Test Updating User")

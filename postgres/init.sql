@@ -1,4 +1,4 @@
-CREATE USER bootcamp SUPERUSER PASSWORD 'bootcamppass';
+CREATE USER bootcamp SUPERUSER ENCRYPTED PASSWORD 'bootcamppass';
 CREATE DATABASE "bootcamp"
   WITH OWNER = postgres
        ENCODING = 'UTF8'

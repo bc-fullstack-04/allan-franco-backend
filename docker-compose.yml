@@ -29,9 +29,11 @@ services:
     container_name: app-user-api
     environment:
       - RABBIT_HOST=rabbitmq_bootcamp
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
       - POSTGRES_URL=postgres_bootcamp
       - POSTGRES_USER=bootcamp
-      - POSTGRES_PASSWORD=botcamppass
+      - POSTGRES_PASSWORD=bootcamppass
       - POSTGRES_DATABASE=bootcamp
     depends_on:
       - postgres_bootcamp
@@ -47,9 +49,11 @@ services:
     container_name: app-integration-api
     environment:
       - RABBIT_HOST=rabbitmq_bootcamp
+      - RABBIT_USER=guest
+      - RABBIT_PASSWORD=guest
       - POSTGRES_URL=postgres_bootcamp
       - POSTGRES_USER=bootcamp
-      - POSTGRES_PASSWORD=botcamppass
+      - POSTGRES_PASSWORD=bootcamppass
       - POSTGRES_DATABASE=bootcamp
     depends_on:
       - postgres_bootcamp
