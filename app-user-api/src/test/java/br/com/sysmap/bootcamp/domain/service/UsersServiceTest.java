@@ -7,6 +7,7 @@ import br.com.sysmap.bootcamp.domain.repository.WalletRepository;
 import br.com.sysmap.bootcamp.domain.validation.UsersValidation;
 import br.com.sysmap.bootcamp.dto.AuthDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -86,10 +87,25 @@ public class UsersServiceTest {
     @Test
     @DisplayName("Test Updating User")
     public void testUpdatingUser() throws Exception {
+        Users user2 = Users.builder()
+                .id(2L)
+                .name(null)
+                .email(null)
+                .password(null)
+                .build();
+
         when(usersRepository.findById(anyLong())).thenReturn(Optional.ofNullable((user)));
         when(usersRepository.save(any(Users.class))).thenReturn(user);
 
         assertEquals(user, usersService.updateUser(user));
+
+        when(usersRepository.findById(anyLong())).thenReturn(Optional.ofNullable((user)));
+
+        Users updatedUser = usersService.updateUser(user2);
+
+        assertEquals(user.getName(), updatedUser.getName());
+        assertEquals(user.getEmail(), updatedUser.getEmail());
+        assertEquals(user.getPassword(), updatedUser.getPassword());
     }
 
     @Test
