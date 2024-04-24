@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.math.BigDecimal;
@@ -45,13 +47,16 @@ public class UsersServiceTest {
     private Wallet wallet;
     private AuthDto authDto;
 
+    @MockBean
+    private PasswordEncoder passwordEncoder;
+
     @BeforeEach
     public void setup() {
         user = Users.builder()
                 .id(1L)
                 .name("teste")
-                .email("teste")
-                .password("123")
+                .email("test")
+                .password("testPassword")
                 .build();
 
         wallet = Wallet.builder()
@@ -64,7 +69,7 @@ public class UsersServiceTest {
 
         authDto = AuthDto.builder()
                 .email("test")
-                .password("wrongPassword")
+                .password("testPassword")
                 .id(1L)
                 .token("testToken")
                 .build();
@@ -81,13 +86,6 @@ public class UsersServiceTest {
     @Test
     @DisplayName("Test Updating User")
     public void testUpdatingUser() throws Exception {
-        Users user = Users.builder()
-                .id(1L)
-                .name("teste")
-                .email("test")
-                .password("teste")
-                .build();
-
         when(usersRepository.findById(anyLong())).thenReturn(Optional.ofNullable((user)));
         when(usersRepository.save(any(Users.class))).thenReturn(user);
 
@@ -126,9 +124,18 @@ public class UsersServiceTest {
     @Test
     @DisplayName("Authenticating User")
     public void testAuth() throws Exception {
-        when(usersRepository.findByEmail(anyString())).thenReturn(Optional.ofNullable(user));
+        when(usersValidation.findByEmail(anyString())).thenReturn(user);
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
 
-        assertThrows(RuntimeException.class, () -> usersService.auth(authDto));
+        AuthDto result = usersService.auth(authDto);
+        assertEquals(authDto.getEmail(), result.getEmail());
+        assertEquals(authDto.getId(), result.getId());
+
         verify(usersValidation).findByEmail(anyString());
+
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
+        assertThrows(RuntimeException.class, () -> {
+            usersService.auth(authDto);
+        });
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -62,6 +63,11 @@ public class WalletControllerTest {
         mockMvc.perform(post("/wallet/credit/{value}", 10)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(walletService).addCreditToWalletByUser(BigDecimal.valueOf(10));
+        mockMvc.perform(post("/wallet/credit/{value}", 10)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -73,5 +79,10 @@ public class WalletControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(wallet)));
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(walletService).getWalletByUser();
+        mockMvc.perform(get("/wallet", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

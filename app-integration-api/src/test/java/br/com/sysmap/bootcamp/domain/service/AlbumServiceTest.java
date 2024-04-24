@@ -15,11 +15,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+import javax.xml.crypto.Data;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
@@ -90,6 +92,14 @@ public class AlbumServiceTest {
         assertEquals(album, result);
 
         verify(template).convertAndSend(anyString(), any(WalletDto.class));
+
+        when(albumRepository.findByIdSpotifyAndUsers(anyString(), any(Users.class)))
+                .thenThrow(new DataIntegrityViolationException("Simulated exception"));
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            albumService.buyAlbumByUser(album);
+        });
+
+
     }
 
     @Test

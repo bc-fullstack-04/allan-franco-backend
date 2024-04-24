@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -68,6 +69,13 @@ public class AlbumControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(album)))
                 .andExpect(status().isOk());
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(albumService).buyAlbumByUser(album);
+
+        mockMvc.perform(post("/albums/sale")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(album)))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -81,6 +89,11 @@ public class AlbumControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(albumList)));
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(albumService).getAlbumByUser();
+        mockMvc.perform(get("/albums/my-collection")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -94,6 +107,11 @@ public class AlbumControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(albumModel)));
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(albumService).getAllAlbums("Teste");
+        mockMvc.perform(get("/albums/all?search=Teste")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -104,5 +122,10 @@ public class AlbumControllerTest {
         mockMvc.perform(delete("/albums/remove/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(albumService).removeAlbumByID(1L);
+        mockMvc.perform(delete("/albums/remove/{id}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 }

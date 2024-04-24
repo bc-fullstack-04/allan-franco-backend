@@ -33,6 +33,8 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -71,17 +73,23 @@ public class UsersControllerTest {
         authDto.setToken("testToken");
     }
 
-    /*
+
     @Test
     @DisplayName("Test Creating User")
     public void testCreatingUser() throws Exception {
-        when(usersService.createUser(user)).thenReturn(user);
+        when(usersService.createUser(any(Users.class))).thenReturn(user);
 
         mockMvc.perform(post("/users/create")
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(user)))
             .andExpect(status().isOk());
-    }*/
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(usersService).createUser(any(Users.class));
+        mockMvc.perform(post("/users/create")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(user)))
+            .andExpect(status().isBadRequest());
+    }
 
     @Test
     @DisplayName("Test Updating User")
@@ -89,9 +97,15 @@ public class UsersControllerTest {
         when(usersService.updateUser(user)).thenReturn(user);
 
         mockMvc.perform(put("/users/update")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk());
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(user)))
+            .andExpect(status().isOk());
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(usersService).updateUser(any(Users.class));
+        mockMvc.perform(put("/users/update")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(user)))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -100,9 +114,14 @@ public class UsersControllerTest {
         when(usersService.getUserById(1L)).thenReturn(user);
 
         mockMvc.perform(get("/users/{id}", 1L)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(user)));
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().json(objectMapper.writeValueAsString(user)));
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(usersService).getUserById(1L);
+        mockMvc.perform(get("/users/{id}", 1L)
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -112,19 +131,30 @@ public class UsersControllerTest {
 
         when(usersService.getAllUser()).thenReturn(users);
         mockMvc.perform(get("/users")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(users)));
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().json(objectMapper.writeValueAsString(users)));
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(usersService).getAllUser();
+        mockMvc.perform(get("/users")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
     @DisplayName("Authentication User")
     public  void testeAuth() throws Exception {
-        when(usersService.auth(authDto)).thenReturn(authDto);
+        when(usersService.auth(any(AuthDto.class))).thenReturn(authDto);
 
         mockMvc.perform(post("/users/auth")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authDto)))
-                .andExpect(status().isOk());
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(authDto)))
+            .andExpect(status().isOk());
+
+        doThrow(new RuntimeException("Erro de Bad Request")).when(usersService).auth(any(AuthDto.class));
+        mockMvc.perform(post("/users/auth")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(authDto)))
+            .andExpect(status().isBadRequest());
     }
 }

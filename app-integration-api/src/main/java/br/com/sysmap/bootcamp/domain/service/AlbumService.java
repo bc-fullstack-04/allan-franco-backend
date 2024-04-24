@@ -20,6 +20,7 @@ import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -35,12 +36,13 @@ public class AlbumService {
     public Album buyAlbumByUser(Album album) {
 
         album.setUsers(getUser());
-        Album existingAlbum = albumRepository.findByIdSpotifyAndUsers(album.getIdSpotify(), getUser());
 
-        // Validates that e-mail exists
-        if(existingAlbum != null) {
+        try {
+            albumRepository.findByIdSpotifyAndUsers(album.getIdSpotify(), getUser());
+        }catch(DataIntegrityViolationException e){
             throw new DataIntegrityViolationException("User already owns this album");
         }
+
         Album albumSaved = albumRepository.save(album);
 
         // Generate Rabbit Queue to Debit the sale in User's Wallet
