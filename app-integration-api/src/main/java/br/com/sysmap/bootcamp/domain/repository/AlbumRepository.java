@@ -11,5 +11,5 @@ import java.util.List;
 public interface AlbumRepository extends JpaRepository<Album, Long>{
     List<Album> findAllByUsers(Users users);
     Album findByIdAndUsers(Long id, Users users);
-    Album findByIdSpotifyAndUsers(String id, Users users);
+    Album findByIdSpotifyAndUsers(String idSpotify, Users users);
 }

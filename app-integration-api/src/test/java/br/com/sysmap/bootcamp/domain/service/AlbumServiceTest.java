@@ -29,6 +29,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -80,25 +82,18 @@ public class AlbumServiceTest {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         when(usersService.findByEmail(anyString())).thenReturn(user);
-
         when(albumRepository.save(any(Album.class))).thenReturn(album);
 
         // Set Mock SpotifyAPI Authentication
         List<AlbumModel> albumModels = Arrays.asList(new AlbumModel(), new AlbumModel());
         when(spotifyApi.getAlbums(anyString())).thenReturn(albumModels);
 
-        Album result = albumService.buyAlbumByUser(album);
-
-        assertEquals(album, result);
+        assertEquals(album, albumService.buyAlbumByUser(album));
 
         verify(template).convertAndSend(anyString(), any(WalletDto.class));
 
-        when(albumRepository.findByIdSpotifyAndUsers(anyString(), any(Users.class)))
-                .thenThrow(new DataIntegrityViolationException("Simulated exception"));
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            albumService.buyAlbumByUser(album);
-        });
-
+        when(albumRepository.findByIdSpotifyAndUsers(anyString(), any(Users.class))).thenReturn(album);
+        assertThrows(DataIntegrityViolationException.class, () -> {albumService.buyAlbumByUser(album);});
 
     }
 

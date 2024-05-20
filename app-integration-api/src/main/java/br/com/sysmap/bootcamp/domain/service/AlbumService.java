@@ -36,10 +36,10 @@ public class AlbumService {
     public Album buyAlbumByUser(Album album) {
 
         album.setUsers(getUser());
+        Album existingAlbum = albumRepository.findByIdSpotifyAndUsers(album.getIdSpotify(), getUser());
 
-        try {
-            albumRepository.findByIdSpotifyAndUsers(album.getIdSpotify(), getUser());
-        }catch(DataIntegrityViolationException e){
+        // Validates that album exists
+        if (existingAlbum != null) {
             throw new DataIntegrityViolationException("User already owns this album");
         }
 
